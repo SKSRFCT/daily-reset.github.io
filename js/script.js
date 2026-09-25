@@ -122,15 +122,14 @@ function displayContent(content) {
         content.motivation || "No motivation added yet.";
 
     disciplineElement.textContent =
-        content.discipline_tip || "No discipline tip added yet.";
+        content.discipline || "No discipline tip added yet.";
 
     selfCareElement.textContent =
-        content.self_care_tip || "No self-care tip added yet.";
+        content.self_care || "No self-care tip added yet.";
 
     challengeElement.textContent =
         content.challenge || "No challenge added yet.";
 }
-
 
 /*
 ========================================
@@ -149,12 +148,12 @@ async function loadDailyContent() {
     try {
 
         const { data, error } = await supabaseClient
-            .from("daily_content")
-            .select(
-                "id, content_date, motivation, discipline_tip, self_care_tip, challenge"
-            )
-            .eq("content_date", today)
-            .single();
+    .from("daily_content")
+    .select(
+        "id, content_date, motivation, discipline, self_care, challenge"
+    )
+    .eq("content_date", today)
+    .single();
 
 
         /*
