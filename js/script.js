@@ -4,22 +4,34 @@
 ========================================
 SUPABASE CONFIGURATION
 ========================================
-
-Get these from:
-
-Supabase Dashboard
-→ Project Settings
-→ Data API
-
-IMPORTANT:
-Use the project's PUBLIC / PUBLISHABLE key here.
-
-DO NOT put your secret/service-role key
-into this file.
 */
 
 const SUPABASE_URL = "https://eckftzfyllgscqfcdhgg.supabase.co";
+
+// Paste your PUBLIC / PUBLISHABLE key here.
+// Do NOT use the secret/service-role key.
 const SUPABASE_KEY = "sb_publishable__-lqU59W3cxcY5CnksN2Eg_lPZfEtNE";
+
+
+/*
+========================================
+CHECK SUPABASE LIBRARY
+========================================
+*/
+
+if (typeof supabase === "undefined") {
+    console.error("Supabase library was not loaded.");
+
+    const statusElement = document.getElementById("status");
+
+    if (statusElement) {
+        statusElement.textContent =
+            "Supabase library failed to load.";
+        statusElement.className = "status error";
+    }
+
+    throw new Error("Supabase library is unavailable.");
+}
 
 
 /*
@@ -40,23 +52,49 @@ HTML ELEMENTS
 ========================================
 */
 
-const motivationElement = document.getElementById("motivation");
-const disciplineElement = document.getElementById("discipline-tip");
-const selfCareElement = document.getElementById("self-care-tip");
-const challengeElement = document.getElementById("challenge");
-const dateElement = document.getElementById("current-date");
-const statusElement = document.getElementById("status");
+const motivationElement =
+    document.getElementById("motivation");
+
+const disciplineElement =
+    document.getElementById("discipline-tip");
+
+const selfCareElement =
+    document.getElementById("self-care-tip");
+
+const challengeElement =
+    document.getElementById("challenge");
+
+const dateElement =
+    document.getElementById("current-date");
+
+const statusElement =
+    document.getElementById("status");
+
+
+/*
+========================================
+CHECK HTML ELEMENTS
+========================================
+*/
+
+if (
+    !motivationElement ||
+    !disciplineElement ||
+    !selfCareElement ||
+    !challengeElement ||
+    !dateElement ||
+    !statusElement
+) {
+    console.error("One or more required HTML elements are missing.");
+
+    throw new Error("Required HTML elements are missing.");
+}
 
 
 /*
 ========================================
 GET LOCAL DATE
 ========================================
-
-Using the user's local date is better than
-toISOString() here because toISOString()
-uses UTC and can produce the previous day
-depending on timezone.
 */
 
 function getTodayDate() {
@@ -72,7 +110,7 @@ function getTodayDate() {
 
 /*
 ========================================
-DISPLAY DATE
+DISPLAY CURRENT DATE
 ========================================
 */
 
@@ -119,17 +157,24 @@ DISPLAY CONTENT
 function displayContent(content) {
 
     motivationElement.textContent =
-        content.motivation || "No motivation added yet.";
+        content.motivation ||
+        "No motivation added yet.";
 
     disciplineElement.textContent =
-        content.discipline || "No discipline tip added yet.";
+        content.discipline ||
+        content.discipline_tip ||
+        "No discipline tip added yet.";
 
     selfCareElement.textContent =
-        content.self_care || "No self-care tip added yet.";
+        content.self_care ||
+        content.self_care_tip ||
+        "No self-care tip added yet.";
 
     challengeElement.textContent =
-        content.challenge || "No challenge added yet.";
+        content.challenge ||
+        "No challenge added yet.";
 }
+
 
 /*
 ========================================
@@ -141,48 +186,88 @@ async function loadDailyContent() {
 
     const today = getTodayDate();
 
-    console.log("Loading content for:", today);
+    console.log("================================");
+    console.log("Daily Reset");
+    console.log("Today's date:", today);
+    console.log("================================");
 
     setStatus("Loading today's content...");
 
     try {
 
-        const { data, error } = await supabaseClient
-    .from("daily_content")
-    .select(
-        "id, content_date, motivation, discipline, self_care, challenge"
-    )
-    .eq("content_date", today)
-    .single();
+        /*
+        ========================================
+        FIRST ATTEMPT
+
+        Expected database columns:
+        motivation
+        discipline
+        self_care
+        challenge
+        ========================================
+        */
+
+        let result = await supabaseClient
+            .from("daily_content")
+            .select(
+                "id, content_date, motivation, discipline, self_care, challenge"
+            )
+            .eq("content_date", today)
+            .maybeSingle();
 
 
         /*
         ========================================
-        HANDLE SUPABASE ERROR
+        FALLBACK
+
+        Some earlier versions used:
+        discipline_tip
+        self_care_tip
+
+        Try those if the first query fails.
+        ========================================
+        */
+
+        if (result.error) {
+
+            console.warn(
+                "First database query failed:",
+                result.error
+            );
+
+            result = await supabaseClient
+                .from("daily_content")
+                .select(
+                    "id, content_date, motivation, discipline_tip, self_care_tip, challenge"
+                )
+                .eq("content_date", today)
+                .maybeSingle();
+        }
+
+
+        const data = result.data;
+        const error = result.error;
+
+
+        /*
+        ========================================
+        HANDLE ERROR
         ========================================
         */
 
         if (error) {
 
-            console.error("Supabase error:", error);
+            console.error(
+                "Supabase error:",
+                error
+            );
 
-            /*
-            PGRST116 usually means no matching row
-            was found when using .single().
-            */
-
-            if (error.code === "PGRST116") {
-
-                setStatus(
-                    "No content has been added for today yet.",
-                    "error"
-                );
-
-                return;
-            }
+            const message =
+                error.message ||
+                "Unknown Supabase error.";
 
             setStatus(
-                "Unable to load today's content.",
+                "Supabase error: " + message,
                 "error"
             );
 
@@ -192,11 +277,36 @@ async function loadDailyContent() {
 
         /*
         ========================================
-        DISPLAY RESULT
+        NO CONTENT
         ========================================
         */
 
-        console.log("Daily content:", data);
+        if (!data) {
+
+            console.warn(
+                "No daily_content row found for:",
+                today
+            );
+
+            setStatus(
+                `No content found for ${today}.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        /*
+        ========================================
+        SUCCESS
+        ========================================
+        */
+
+        console.log(
+            "Daily content loaded:",
+            data
+        );
 
         displayContent(data);
 
@@ -208,12 +318,12 @@ async function loadDailyContent() {
     } catch (error) {
 
         console.error(
-            "Unexpected error:",
+            "Unexpected JavaScript error:",
             error
         );
 
         setStatus(
-            "Something went wrong while loading the website.",
+            "Unexpected error: " + error.message,
             "error"
         );
     }
