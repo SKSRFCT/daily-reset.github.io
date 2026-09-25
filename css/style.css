@@ -1,0 +1,227 @@
+/* ================================
+   GLOBAL
+================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --background: #0d0f14;
+    --surface: #151922;
+    --surface-hover: #1b202c;
+    --border: #272d3a;
+    --text: #f5f7fb;
+    --muted: #9da5b5;
+    --accent: #7c5cff;
+    --accent-soft: rgba(124, 92, 255, 0.12);
+    --success: #4ade80;
+    --danger: #f87171;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(124, 92, 255, 0.16),
+            transparent 35%
+        ),
+        var(--background);
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    line-height: 1.6;
+}
+
+
+/* ================================
+   LAYOUT
+================================ */
+
+.container {
+    width: min(1100px, 92%);
+    margin: 0 auto;
+    padding: 70px 0 50px;
+}
+
+
+/* ================================
+   HERO
+================================ */
+
+.hero {
+    max-width: 760px;
+    margin-bottom: 50px;
+}
+
+.eyebrow {
+    display: inline-block;
+
+    margin-bottom: 14px;
+    padding: 7px 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    background: var(--accent-soft);
+
+    color: #c7bcff;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.hero h1 {
+    max-width: 800px;
+
+    font-size: clamp(2.5rem, 7vw, 5.2rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.subtitle {
+    max-width: 650px;
+
+    margin-top: 22px;
+
+    color: var(--muted);
+    font-size: 1.05rem;
+}
+
+.date-text {
+    margin-top: 18px;
+
+    color: #c7bcff;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+
+/* ================================
+   CARDS
+================================ */
+
+.content-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.card {
+    min-height: 240px;
+
+    padding: 28px;
+
+    border: 1px solid var(--border);
+    border-radius: 22px;
+
+    background: var(--surface);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+
+    background: var(--surface-hover);
+
+    border-color: #343b4a;
+}
+
+.card-label {
+    display: inline-block;
+
+    margin-bottom: 15px;
+
+    color: #c7bcff;
+
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.card h2 {
+    margin-bottom: 14px;
+
+    font-size: 1.45rem;
+    line-height: 1.2;
+}
+
+.card p {
+    color: var(--muted);
+
+    font-size: 1.05rem;
+}
+
+.challenge-card {
+    border-color: rgba(124, 92, 255, 0.35);
+}
+
+
+/* ================================
+   STATUS
+================================ */
+
+.status {
+    margin-top: 25px;
+
+    color: var(--muted);
+
+    font-size: 0.9rem;
+}
+
+.status.success {
+    color: var(--success);
+}
+
+.status.error {
+    color: var(--danger);
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 700px) {
+
+    .container {
+        padding-top: 45px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        min-height: auto;
+    }
+
+    .hero {
+        margin-bottom: 35px;
+    }
+
+}
