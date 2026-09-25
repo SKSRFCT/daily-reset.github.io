@@ -6,7 +6,7 @@ SUPABASE CONFIGURATION
 ========================================
 */
 
-const SUPABASE_URL = "https://eckftzfyllgscqfcdhgg.supabase.co/rest/v1/daily_content";
+const SUPABASE_URL = "https://eckftzfyllgscqfcdhgg.supabase.co";
 
 // Use your existing PUBLIC / PUBLISHABLE key.
 // Do NOT use a secret/service-role key.
