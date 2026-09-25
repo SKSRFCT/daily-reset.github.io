@@ -18,8 +18,8 @@ DO NOT put your secret/service-role key
 into this file.
 */
 
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://eckftzfyllgscqfcdhgg.supabase.co";
+const SUPABASE_KEY = "sb_publishable__-lqU59W3cxcY5CnksN2Eg_lPZfEtNE";
 
 
 /*
