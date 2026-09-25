@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Daily motivation, discipline and self-care."
+    >
+
+    <title>Daily Reset</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header class="hero">
+            <p class="eyebrow">DAILY RESET</p>
+            <h1>Become better, one day at a time.</h1>
+            <p class="subtitle">
+                Your daily motivation, discipline challenge and self-care reminder.
+            </p>
+
+            <p id="current-date" class="date-text">Loading date...</p>
+        </header>
+
+        <section class="content-grid">
+
+            <article class="card">
+                <span class="card-label">🔥 MOTIVATION</span>
+                <h2>Today's Motivation</h2>
+                <p id="motivation">
+                    Loading...
+                </p>
+            </article>
+
+            <article class="card">
+                <span class="card-label">🎯 DISCIPLINE</span>
+                <h2>Today's Discipline</h2>
+                <p id="discipline-tip">
+                    Loading...
+                </p>
+            </article>
+
+            <article class="card">
+                <span class="card-label">🧠 SELF-CARE</span>
+                <h2>Take Care of Yourself</h2>
+                <p id="self-care-tip">
+                    Loading...
+                </p>
+            </article>
+
+            <article class="card challenge-card">
+                <span class="card-label">⚡ CHALLENGE</span>
+                <h2>Today's Challenge</h2>
+                <p id="challenge">
+                    Loading...
+                </p>
+            </article>
+
+        </section>
+
+        <section id="status" class="status">
+            Connecting to daily content...
+        </section>
+
+    </main>
+
+    <!-- Supabase JavaScript library -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <!-- Your JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
