@@ -8,8 +8,8 @@ SUPABASE CONFIGURATION
 
 const SUPABASE_URL = "https://eckftzfyllgscqfcdhgg.supabase.co";
 
-// Paste your PUBLIC / PUBLISHABLE key here.
-// Do NOT use the secret/service-role key.
+// Use your existing PUBLIC / PUBLISHABLE key.
+// Do NOT use a secret/service-role key.
 const SUPABASE_KEY = "sb_publishable__-lqU59W3cxcY5CnksN2Eg_lPZfEtNE";
 
 
@@ -27,10 +27,14 @@ if (typeof supabase === "undefined") {
     if (statusElement) {
         statusElement.textContent =
             "Supabase library failed to load.";
-        statusElement.className = "status error";
+
+        statusElement.className =
+            "status error";
     }
 
-    throw new Error("Supabase library is unavailable.");
+    throw new Error(
+        "Supabase library is unavailable."
+    );
 }
 
 
@@ -73,7 +77,7 @@ const statusElement =
 
 /*
 ========================================
-CHECK HTML ELEMENTS
+CHECK REQUIRED ELEMENTS
 ========================================
 */
 
@@ -85,15 +89,25 @@ if (
     !dateElement ||
     !statusElement
 ) {
-    console.error("One or more required HTML elements are missing.");
+    console.error(
+        "One or more required HTML elements are missing."
+    );
 
-    throw new Error("Required HTML elements are missing.");
+    throw new Error(
+        "Required HTML elements are missing."
+    );
 }
 
 
 /*
 ========================================
-GET LOCAL DATE
+GET TODAY'S DATE
+========================================
+
+Returns:
+YYYY-MM-DD
+
+Uses the visitor's local date for now.
 ========================================
 */
 
@@ -101,8 +115,14 @@ function getTodayDate() {
     const now = new Date();
 
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
+
+    const month =
+        String(now.getMonth() + 1)
+            .padStart(2, "0");
+
+    const day =
+        String(now.getDate())
+            .padStart(2, "0");
 
     return `${year}-${month}-${day}`;
 }
@@ -117,17 +137,19 @@ DISPLAY CURRENT DATE
 function displayCurrentDate() {
     const now = new Date();
 
-    const formattedDate = now.toLocaleDateString(
-        undefined,
-        {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric"
-        }
-    );
+    const formattedDate =
+        now.toLocaleDateString(
+            undefined,
+            {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
 
-    dateElement.textContent = formattedDate;
+    dateElement.textContent =
+        formattedDate;
 }
 
 
@@ -137,10 +159,15 @@ SET STATUS
 ========================================
 */
 
-function setStatus(message, type = "") {
-    statusElement.textContent = message;
+function setStatus(
+    message,
+    type = ""
+) {
+    statusElement.textContent =
+        message;
 
-    statusElement.className = "status";
+    statusElement.className =
+        "status";
 
     if (type !== "") {
         statusElement.classList.add(type);
@@ -150,23 +177,20 @@ function setStatus(message, type = "") {
 
 /*
 ========================================
-DISPLAY CONTENT
+DISPLAY DAILY CONTENT
 ========================================
 */
 
 function displayContent(content) {
-
     motivationElement.textContent =
         content.motivation ||
         "No motivation added yet.";
 
     disciplineElement.textContent =
-        content.discipline ||
         content.discipline_tip ||
         "No discipline tip added yet.";
 
     selfCareElement.textContent =
-        content.self_care ||
         content.self_care_tip ||
         "No self-care tip added yet.";
 
@@ -183,91 +207,59 @@ LOAD TODAY'S CONTENT
 */
 
 async function loadDailyContent() {
-
     const today = getTodayDate();
 
-    console.log("================================");
-    console.log("Daily Reset");
-    console.log("Today's date:", today);
-    console.log("================================");
+    console.log(
+        "================================"
+    );
 
-    setStatus("Loading today's content...");
+    console.log(
+        "Daily Reset"
+    );
+
+    console.log(
+        "Today's date:",
+        today
+    );
+
+    console.log(
+        "================================"
+    );
+
+    setStatus(
+        "Loading today's content..."
+    );
 
     try {
-
-        /*
-        ========================================
-        FIRST ATTEMPT
-
-        Expected database columns:
-        motivation
-        discipline
-        self_care
-        challenge
-        ========================================
-        */
-
-        let result = await supabaseClient
+        const {
+            data,
+            error
+        } = await supabaseClient
             .from("daily_content")
             .select(
-                "id, content_date, motivation, discipline, self_care, challenge"
+                "id, content_date, motivation, discipline_tip, self_care_tip, challenge"
             )
-            .eq("content_date", today)
+            .eq(
+                "content_date",
+                today
+            )
             .maybeSingle();
 
 
         /*
         ========================================
-        FALLBACK
-
-        Some earlier versions used:
-        discipline_tip
-        self_care_tip
-
-        Try those if the first query fails.
-        ========================================
-        */
-
-        if (result.error) {
-
-            console.warn(
-                "First database query failed:",
-                result.error
-            );
-
-            result = await supabaseClient
-                .from("daily_content")
-                .select(
-                    "id, content_date, motivation, discipline_tip, self_care_tip, challenge"
-                )
-                .eq("content_date", today)
-                .maybeSingle();
-        }
-
-
-        const data = result.data;
-        const error = result.error;
-
-
-        /*
-        ========================================
-        HANDLE ERROR
+        HANDLE SUPABASE ERROR
         ========================================
         */
 
         if (error) {
-
             console.error(
                 "Supabase error:",
                 error
             );
 
-            const message =
-                error.message ||
-                "Unknown Supabase error.";
-
             setStatus(
-                "Supabase error: " + message,
+                "Unable to load today's content.",
                 "error"
             );
 
@@ -277,14 +269,13 @@ async function loadDailyContent() {
 
         /*
         ========================================
-        NO CONTENT
+        HANDLE MISSING CONTENT
         ========================================
         */
 
         if (!data) {
-
             console.warn(
-                "No daily_content row found for:",
+                "No daily content found for:",
                 today
             );
 
@@ -299,7 +290,7 @@ async function loadDailyContent() {
 
         /*
         ========================================
-        SUCCESS
+        DISPLAY CONTENT
         ========================================
         */
 
@@ -310,20 +301,26 @@ async function loadDailyContent() {
 
         displayContent(data);
 
+
+        /*
+        ========================================
+        SUCCESS
+        ========================================
+        */
+
         setStatus(
             "Today's content loaded successfully.",
             "success"
         );
 
     } catch (error) {
-
         console.error(
             "Unexpected JavaScript error:",
             error
         );
 
         setStatus(
-            "Unexpected error: " + error.message,
+            "Something went wrong while loading today's content.",
             "error"
         );
     }
@@ -337,4 +334,5 @@ START WEBSITE
 */
 
 displayCurrentDate();
+
 loadDailyContent();
